@@ -4,6 +4,7 @@ class Game {
     this.wordElement = container.querySelector('.word');
     this.winsElement = container.querySelector('.status__wins');
     this.lossElement = container.querySelector('.status__loss');
+    this.timerElement = container.querySelector('#timer'); // Элемент таймера
 
     this.reset();
 
@@ -14,7 +15,30 @@ class Game {
     this.setNewWord();
     this.winsElement.textContent = 0;
     this.lossElement.textContent = 0;
+    this.startTimer(); // Запускаем таймер при сбросе игры
   }
+
+
+  startTimer() {
+    if (this.timerInterval) clearInterval(this.timerInterval); // Очищаем предыдущий таймер
+
+    const wordLength = this.currentWord.length; // Длина текущего слова
+    let timeLeft = wordLength; // Устанавливаем время на основе длины слова
+
+    this.timerElement.textContent = timeLeft; // Обновляем отображение таймера
+
+    this.timerInterval = setInterval(() => {
+      timeLeft--;
+      this.timerElement.textContent = timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(this.timerInterval);
+        alert('Время вышло! Игра окончена.');
+        this.reset(); // Сбрасываем игру, если время вышло
+      }
+    }, 1000);
+  }
+
 
   registerEvents() {
     document.addEventListener('keydown', (event) => {
@@ -60,6 +84,8 @@ class Game {
     const word = this.getWord();
 
     this.renderWord(word);
+
+    this.startTimer(); // Запускаем таймер для нового слова
   }
 
   getWord() {
@@ -75,10 +101,11 @@ class Game {
         'cinema',
         'love',
         'javascript'
-      ],
-      index = Math.floor(Math.random() * words.length);
+      ];
+      const index = Math.floor(Math.random() * words.length);
 
-    return words[index];
+      this.currentWord = words[index]; // Сохраняем текущее слово для использования в таймере
+      return this.currentWord;
   }
 
   renderWord(word) {
